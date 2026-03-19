@@ -22,10 +22,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
   <style>
     /* Custom scrollbar for the product carousel */
+    .product-scroll {
+      scrollbar-width: thin;
+      scrollbar-color: #1a1a1a #e5e5e5;
+    }
     .product-scroll::-webkit-scrollbar {
       height: 3px;
+      transition: height 0.2s ease;
     }
-    .product-scroll::-webkit-scrollbar:hover {
+    .product-scroll:hover::-webkit-scrollbar,
+    .product-scroll:active::-webkit-scrollbar {
       height: 6px;
     }
     .product-scroll::-webkit-scrollbar-track {
@@ -37,12 +43,7 @@
       border-radius: 10px;
     }
     .product-scroll::-webkit-scrollbar-thumb:hover {
-      background: #333;
-    }
-    /* Firefox scrollbar */
-    .product-scroll {
-      scrollbar-width: thin;
-      scrollbar-color: #1a1a1a #e5e5e5;
+      background: #444;
     }
     /* Smooth reveal transition for show more */
     .mobile-hidden-products {
