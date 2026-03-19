@@ -65,6 +65,21 @@
       width: 0;
       height: 0;
     }
+
+    /*
+     * Mobile "Show More" reveal
+     * Animated via max-height + opacity for a smooth dropdown.
+     */
+    .reveal {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease-in-out, opacity 0.4s ease-in-out;
+    }
+    .reveal.is-open {
+      max-height: 2000px;
+      opacity: 1;
+    }
   </style>
 </head>
 
@@ -92,14 +107,34 @@
       </a>
     </header>
 
-    <!-- Desktop Carousel (placeholder) -->
+    <!-- Desktop Carousel -->
     <div class="hidden md:block">
-      <div id="carousel" class="carousel flex gap-5 overflow-x-auto pb-6" role="list" aria-label="Best selling products"></div>
+      <div
+        id="carousel"
+        class="carousel flex gap-5 overflow-x-auto pb-6 cursor-grab active:cursor-grabbing select-none"
+        role="list"
+        aria-label="Best selling products"
+      ></div>
     </div>
 
-    <!-- Mobile Grid (placeholder) -->
+    <!-- Mobile Grid -->
     <div class="md:hidden">
       <div id="mobile-visible" class="grid grid-cols-2 gap-3" role="list" aria-label="Best selling products"></div>
+
+      <div id="mobile-hidden" class="reveal" aria-hidden="true">
+        <div id="mobile-extra" class="grid grid-cols-2 gap-3 mt-3" role="list" aria-label="More best selling products"></div>
+      </div>
+
+      <div class="mt-5 flex justify-center">
+        <button
+          id="btn-show-more"
+          class="w-full max-w-xs py-3.5 bg-brand text-white text-sm font-semibold rounded-full hover:bg-brand/90 active:bg-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 font-body"
+          aria-expanded="false"
+          aria-controls="mobile-hidden"
+        >
+          Show More
+        </button>
+      </div>
     </div>
 
   </section>
@@ -209,17 +244,81 @@
       }
 
       /* -------------------------------------------------------
-         Init – render cards into both layouts
+         Drag-to-Scroll
+         Works with mouse and touch. Trackpad two-finger scroll
+         is handled natively by overflow-x — no conflict.
+      ------------------------------------------------------- */
+
+      function enableDrag(el) {
+        var isDown = false, dragged = false, startX = 0, scrollStart = 0;
+
+        function down(x) { isDown = true; dragged = false; startX = x; scrollStart = el.scrollLeft; }
+
+        function move(x, evt) {
+          if (!isDown) return;
+          var dx = x - startX;
+          if (Math.abs(dx) > 3) {
+            dragged = true;
+            if (evt) evt.preventDefault();
+            el.scrollLeft = scrollStart - dx;
+          }
+        }
+
+        function up() {
+          if (!isDown) return;
+          isDown = false;
+          if (dragged) {
+            el.querySelectorAll('a').forEach(function (a) {
+              a.addEventListener('click', function (e) { e.preventDefault(); }, { once: true });
+            });
+          }
+        }
+
+        el.addEventListener('mousedown',  function (e) { down(e.pageX); });
+        el.addEventListener('mousemove',  function (e) { move(e.pageX, e); });
+        window.addEventListener('mouseup', up);
+        el.addEventListener('touchstart', function (e) { down(e.touches[0].pageX); }, { passive: true });
+        el.addEventListener('touchmove',  function (e) { move(e.touches[0].pageX); }, { passive: true });
+        el.addEventListener('touchend',   up, { passive: true });
+      }
+
+      /* -------------------------------------------------------
+         Show More / Show Less Toggle (mobile)
+      ------------------------------------------------------- */
+
+      function enableShowMore(btnId, revealId) {
+        var btn    = document.getElementById(btnId);
+        var reveal = document.getElementById(revealId);
+
+        btn.addEventListener('click', function () {
+          var open = reveal.classList.toggle('is-open');
+          btn.textContent = open ? 'Show Less' : 'Show More';
+          btn.setAttribute('aria-expanded', open);
+          reveal.setAttribute('aria-hidden', !open);
+        });
+      }
+
+      /* -------------------------------------------------------
+         Init
       ------------------------------------------------------- */
 
       document.addEventListener('DOMContentLoaded', function () {
-        var carousel   = document.getElementById('carousel');
-        var mobileGrid = document.getElementById('mobile-visible');
+        var carousel    = document.getElementById('carousel');
+        var mobileGrid  = document.getElementById('mobile-visible');
+        var mobileExtra = document.getElementById('mobile-extra');
 
         PRODUCTS.forEach(function (product, i) {
           carousel.appendChild(createCard(product, i, 'desktop'));
-          mobileGrid.appendChild(createCard(product, i, 'mobile'));
+
+          if (i < MOBILE_VISIBLE) {
+            mobileGrid.appendChild(createCard(product, i, 'mobile'));
+          } else {
+            mobileExtra.appendChild(createCard(product, i, 'mobile'));
+          }
         });
+
+        enableDrag(carousel);
+        enableShowMore('btn-show-more', 'mobile-hidden');
       });
 
     })();
