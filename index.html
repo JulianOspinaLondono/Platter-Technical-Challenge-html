@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Best Sellers – Platter Technical Challenge</title>
+
+  <!-- Tailwind CSS (CDN – no build step required) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['"Source Serif Pro"', 'Georgia', 'serif'],
+            display: ['"Bebas Neue"', 'sans-serif'],
+            body:    ['Poppins', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand:  '#231F20',
+            muted:  '#CFCFCF',
+            olive:  '#5C553A',
+            badge:  '#5C7962',
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@700;900&family=Bebas+Neue&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-white font-body antialiased">
+
+  <!-- Best Sellers Section -->
+  <section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-8 md:py-12" aria-labelledby="best-sellers-heading">
+
+    <!-- Header -->
+    <header class="flex items-center justify-between mb-6 md:mb-8">
+      <h2
+        id="best-sellers-heading"
+        class="font-heading font-black text-[32px] md:text-[40px] text-brand leading-[120%] tracking-[-0.01em] w-full text-center md:w-auto md:text-left"
+      >
+        Best Sellers
+      </h2>
+      <a
+        href="#"
+        class="hidden md:inline-flex items-center gap-1.5 text-sm font-medium text-olive hover:text-olive/70 transition-colors whitespace-nowrap group font-body"
+      >
+        Shop All Best Sellers
+        <svg class="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      </a>
+    </header>
+
+    <!-- Desktop Carousel (placeholder) -->
+    <div class="hidden md:block">
+      <div id="carousel" class="flex gap-5 overflow-x-auto pb-6" role="list" aria-label="Best selling products"></div>
+    </div>
+
+    <!-- Mobile Grid (placeholder) -->
+    <div class="md:hidden">
+      <div id="mobile-visible" class="grid grid-cols-2 gap-3" role="list" aria-label="Best selling products"></div>
+    </div>
+
+  </section>
+
+</body>
+</html>
