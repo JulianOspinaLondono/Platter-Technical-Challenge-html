@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Best Sellers – Platter Technical Challenge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    /* Custom scrollbar for the product carousel */
+    .product-scroll::-webkit-scrollbar {
+      height: 3px;
+    }
+    .product-scroll::-webkit-scrollbar:hover {
+      height: 6px;
+    }
+    .product-scroll::-webkit-scrollbar-track {
+      background: #e5e5e5;
+      border-radius: 10px;
+    }
+    .product-scroll::-webkit-scrollbar-thumb {
+      background: #1a1a1a;
+      border-radius: 10px;
+    }
+    .product-scroll::-webkit-scrollbar-thumb:hover {
+      background: #333;
+    }
+    /* Firefox scrollbar */
+    .product-scroll {
+      scrollbar-width: thin;
+      scrollbar-color: #1a1a1a #e5e5e5;
+    }
+    /* Smooth reveal transition for show more */
+    .mobile-hidden-products {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease-in-out, opacity 0.4s ease-in-out;
+      opacity: 0;
+    }
+    .mobile-hidden-products.expanded {
+      max-height: 2000px;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="bg-white font-sans antialiased">
+
+  <section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-8 md:py-12">
+
+    <!-- Section Header -->
+    <header class="flex items-center justify-between mb-6 md:mb-8">
+      <h2 class="font-serif font-extrabold text-2xl md:text-3xl lg:text-4xl text-gray-900 tracking-tight">
+        Best Sellers
+      </h2>
+      <a href="#" class="hidden md:inline-flex items-center gap-1.5 text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors group">
+        Shop All Best Sellers
+        <svg class="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      </a>
+    </header>
+
+    <!-- Desktop: Horizontal Scroll Carousel -->
+    <div class="hidden md:block">
+      <div class="product-scroll flex gap-4 lg:gap-5 overflow-x-auto pb-6 -mb-2" role="list" aria-label="Best selling products">
+        <!-- Cards are injected by JS -->
+      </div>
+    </div>
+
+    <!-- Mobile: 2-Column Grid with Show More -->
+    <div class="md:hidden">
+      <div class="grid grid-cols-2 gap-3" id="mobile-grid" role="list" aria-label="Best selling products">
+        <!-- First 4 cards injected by JS -->
+      </div>
+      <div class="mobile-hidden-products" id="mobile-extra">
+        <div class="grid grid-cols-2 gap-3 mt-3" id="mobile-extra-grid" role="list" aria-label="More best selling products">
+          <!-- Remaining 6 cards injected by JS -->
+        </div>
+      </div>
+      <div class="mt-5 flex justify-center" id="show-more-wrapper">
+        <button
+          id="show-more-btn"
+          class="w-full max-w-xs py-3.5 bg-gray-900 text-white text-sm font-semibold rounded-full hover:bg-gray-800 active:bg-black transition-colors focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+          aria-expanded="false"
+          aria-controls="mobile-extra"
+        >
+          Show More
+        </button>
+      </div>
+    </div>
+
+  </section>
+
+  <script>
+    // ========== Product Data ==========
+    const products = [
+      {
+        name: "Outside Vibes T-Shirt Sunshine",
+        price: 104.95,
+        rating: 4.5,
+        reviews: 1234,
+        badges: ["best-seller"],
+        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop",
+        imageAlt: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&h=600&fit=crop",
+        bgColor: "#f5d547",
+      },
+      {
+        name: "Hike Bottle Outside Vibes Forest Green",
+        price: 104.95,
+        rating: 5,
+        reviews: 1234,
+        badges: ["best-seller", "save-15"],
+        image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&h=600&fit=crop",
+        imageAlt: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600&h=600&fit=crop",
+        bgColor: "#e8e8e8",
+      },
+      {
+        name: "Rest In Nature T-Shirt Charcoal",
+        price: 104.95,
+        rating: 4.5,
+        reviews: 1234,
+        badges: ["best-seller"],
+        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=600&fit=crop",
+        imageAlt: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&h=600&fit=crop",
+        bgColor: "#e8384a",
+      },
+      {
+        name: "Outside Vibes Cap Forest Green",
+        price: 104.95,
+        rating: 5,
+        reviews: 1234,
+        badges: ["best-seller", "save-15"],
+        image: "https://images.unsplash.com/photo-1587132137056-bfbf0166836e?w=600&h=600&fit=crop",
+        imageAlt: "https://images.unsplash.com/photo-1525385133512-2f3bdd039054?w=600&h=600&fit=crop",
+        bgColor: "#f8c8d4",
+      },
+      {
+        name: "Rest In Nature T-Shirt Charcoal",
+        price: 104.95,
+        rating: 4.5,
+        reviews: 1234,
+        badges: ["best-seller"],
+        image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop",
+        imageAlt: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=600&h=600&fit=crop",
+        bgColor: "#f9e7c0",
+      },
+      {
+        name: "Trail Runner Pro Midnight Blue",
+        price: 129.95,
+        rating: 4.5,
+        reviews: 876,
+        badges: ["best-seller"],
+        image: "https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=600&h=600&fit=crop",
+        imageAlt: "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=600&h=600&fit=crop",
+        bgColor: "#d4e4f7",
+      },
+      {
+        name: "Eco Tote Bag Natural Canvas",
+        price: 49.95,
+        rating: 5,
+        reviews: 2105,
+        badges: ["best-seller", "save-15"],
+        image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&h=600&fit=crop",
+        imageAlt: "https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&h=600&fit=crop",
+        bgColor: "#f0ebe3",
+      },
+      {
+        name: "Adventure Water Bottle Sage",
+        price: 34.95,
+        rating: 4.5,
+        reviews: 1567,
+        badges: ["best-seller"],
+        image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&h=600&fit=crop",
+        imageAlt: "https://images.unsplash.com/photo-1570831739435-6601aa3fa4fb?w=600&h=600&fit=crop",
+        bgColor: "#c8dbbe",
+      },
+      {
+        name: "Classic Aviator Sunglasses Gold",
+        price: 89.95,
+        rating: 4.5,
+        reviews: 943,
+        badges: ["save-15"],
+        image: "https://images.unsplash.com/photo-1577803645773-f96470509666?w=600&h=600&fit=crop",
+        imageAlt: "https://images.unsplash.com/photo-1509695507497-903c140c43b0?w=600&h=600&fit=crop",
+        bgColor: "#fdf0d5",
+      },
+      {
+        name: "Summit Backpack Olive Green",
+        price: 159.95,
+        rating: 5,
+        reviews: 712,
+        badges: ["best-seller"],
+        image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&h=600&fit=crop&q=80",
+        imageAlt: "https://images.unsplash.com/photo-1622260614153-03223fb72052?w=600&h=600&fit=crop",
+        bgColor: "#d6ccc2",
+      },
+    ];
+
+    // ========== Render Helpers ==========
+
+    function renderStars(rating) {
+      let stars = "";
+      for (let i = 1; i <= 5; i++) {
+        if (i <= Math.floor(rating)) {
+          // Full star
+          stars += `<svg class="w-3.5 h-3.5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`;
+        } else if (i === Math.ceil(rating) && rating % 1 !== 0) {
+          // Half star
+          stars += `<svg class="w-3.5 h-3.5 text-yellow-500" viewBox="0 0 20 20" aria-hidden="true">
+            <defs><linearGradient id="half"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="#d1d5db"/></linearGradient></defs>
+            <path fill="url(#half)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>`;
+        } else {
+          // Empty star
+          stars += `<svg class="w-3.5 h-3.5 text-gray-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`;
+        }
+      }
+      return stars;
+    }
+
+    function renderBadges(badges) {
+      return badges
+        .map((badge) => {
+          if (badge === "best-seller") {
+            return `<span class="inline-block px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-white/90 text-gray-900 rounded-full border border-gray-200 backdrop-blur-sm">Best Seller</span>`;
+          }
+          if (badge === "save-15") {
+            return `<span class="inline-block px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-green-800 text-white rounded-full">Save 15%</span>`;
+          }
+          return "";
+        })
+        .join("");
+    }
+
+    function formatPrice(price) {
+      return `$${price.toFixed(2)}`;
+    }
+
+    function formatReviews(count) {
+      return count.toLocaleString();
+    }
+
+    function createProductCard(product, index) {
+      const card = document.createElement("article");
+      card.setAttribute("role", "listitem");
+      card.className = "flex-shrink-0 w-[260px] md:w-[280px] lg:w-[300px] group";
+
+      card.innerHTML = `
+        <a href="#" class="block" aria-label="${product.name} - ${formatPrice(product.price)}">
+          <div class="relative aspect-square rounded-lg overflow-hidden mb-3" style="background-color: ${product.bgColor}">
+            <img
+              src="${product.image}"
+              alt="${product.name}"
+              class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ease-in-out group-hover:opacity-0"
+              loading="${index < 4 ? "eager" : "lazy"}"
+              decoding="async"
+            />
+            <img
+              src="${product.imageAlt}"
+              alt="${product.name} - alternate view"
+              class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ease-in-out opacity-0 group-hover:opacity-100"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="absolute top-3 left-3 right-3 flex items-start justify-between gap-2 pointer-events-none">
+              <div class="flex flex-wrap gap-1.5">
+                ${renderBadges(product.badges)}
+              </div>
+            </div>
+          </div>
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-900 mb-1 leading-snug">${product.name}</h3>
+          <div class="flex items-center gap-1.5 mb-1.5">
+            <div class="flex items-center gap-0.5" aria-label="${product.rating} out of 5 stars">
+              ${renderStars(product.rating)}
+            </div>
+            <span class="text-[11px] text-gray-500">${formatReviews(product.reviews)} Reviews</span>
+          </div>
+          <p class="text-base font-bold text-gray-900">${formatPrice(product.price)}</p>
+        </a>
+      `;
+
+      return card;
+    }
+
+    function createMobileProductCard(product, index) {
+      const card = document.createElement("article");
+      card.setAttribute("role", "listitem");
+      card.className = "group";
+
+      card.innerHTML = `
+        <a href="#" class="block" aria-label="${product.name} - ${formatPrice(product.price)}">
+          <div class="relative aspect-square rounded-lg overflow-hidden mb-2.5" style="background-color: ${product.bgColor}">
+            <img
+              src="${product.image}"
+              alt="${product.name}"
+              class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ease-in-out group-hover:opacity-0"
+              loading="${index < 4 ? "eager" : "lazy"}"
+              decoding="async"
+            />
+            <img
+              src="${product.imageAlt}"
+              alt="${product.name} - alternate view"
+              class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ease-in-out opacity-0 group-hover:opacity-100"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="absolute top-2 left-2 right-2 flex items-start justify-between gap-1.5 pointer-events-none">
+              <div class="flex flex-wrap gap-1">
+                ${renderBadges(product.badges)}
+              </div>
+            </div>
+          </div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-wide text-gray-900 mb-1 leading-snug">${product.name}</h3>
+          <div class="flex items-center gap-1 mb-1">
+            <div class="flex items-center gap-0.5" aria-label="${product.rating} out of 5 stars">
+              ${renderStars(product.rating)}
+            </div>
+            <span class="text-[10px] text-gray-500">${formatReviews(product.reviews)} Reviews</span>
+          </div>
+          <p class="text-sm font-bold text-gray-900">${formatPrice(product.price)}</p>
+        </a>
+      `;
+
+      return card;
+    }
+
+    // ========== Initialize ==========
+
+    function init() {
+      // Desktop carousel
+      const desktopScroll = document.querySelector(".product-scroll");
+      products.forEach((product, i) => {
+        desktopScroll.appendChild(createProductCard(product, i));
+      });
+
+      // Mobile grid – first 4
+      const mobileGrid = document.getElementById("mobile-grid");
+      products.slice(0, 4).forEach((product, i) => {
+        mobileGrid.appendChild(createMobileProductCard(product, i));
+      });
+
+      // Mobile grid – remaining 6
+      const mobileExtraGrid = document.getElementById("mobile-extra-grid");
+      products.slice(4).forEach((product, i) => {
+        mobileExtraGrid.appendChild(createMobileProductCard(product, i + 4));
+      });
+
+      // Show More button
+      const showMoreBtn = document.getElementById("show-more-btn");
+      const mobileExtra = document.getElementById("mobile-extra");
+      const showMoreWrapper = document.getElementById("show-more-wrapper");
+
+      showMoreBtn.addEventListener("click", function () {
+        const isExpanded = mobileExtra.classList.contains("expanded");
+
+        if (isExpanded) {
+          mobileExtra.classList.remove("expanded");
+          showMoreBtn.textContent = "Show More";
+          showMoreBtn.setAttribute("aria-expanded", "false");
+        } else {
+          mobileExtra.classList.add("expanded");
+          showMoreBtn.textContent = "Show Less";
+          showMoreBtn.setAttribute("aria-expanded", "true");
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+
+</body>
+</html>
