@@ -31,6 +31,41 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@700;900&family=Bebas+Neue&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /*
+     * Carousel Scrollbar
+     * Default 3px, expands to 6px on hover/touch.
+     * Native arrows hidden for a cleaner look.
+     */
+    .carousel {
+      scrollbar-width: thin;
+      scrollbar-color: #1a1a1a #e5e5e5;
+    }
+    .carousel::-webkit-scrollbar {
+      height: 3px;
+    }
+    .carousel:hover::-webkit-scrollbar,
+    .carousel:active::-webkit-scrollbar {
+      height: 6px;
+    }
+    .carousel::-webkit-scrollbar-track {
+      background: #e5e5e5;
+      border-radius: 10px;
+    }
+    .carousel::-webkit-scrollbar-thumb {
+      background: #1a1a1a;
+      border-radius: 10px;
+    }
+    .carousel::-webkit-scrollbar-thumb:hover {
+      background: #444;
+    }
+    .carousel::-webkit-scrollbar-button {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+  </style>
 </head>
 
 <body class="bg-white font-body antialiased">
@@ -59,7 +94,7 @@
 
     <!-- Desktop Carousel (placeholder) -->
     <div class="hidden md:block">
-      <div id="carousel" class="flex gap-5 overflow-x-auto pb-6" role="list" aria-label="Best selling products"></div>
+      <div id="carousel" class="carousel flex gap-5 overflow-x-auto pb-6" role="list" aria-label="Best selling products"></div>
     </div>
 
     <!-- Mobile Grid (placeholder) -->
@@ -68,6 +103,127 @@
     </div>
 
   </section>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* -------------------------------------------------------
+         Product Data
+         Each product maps to a card in both layouts.
+         Images sourced from Unsplash (free stock).
+      ------------------------------------------------------- */
+      var PRODUCTS = [
+        { name: 'Outside Vibes T-Shirt Sunshine',        price: 104.95, rating: 4.5, reviews: 1234, badges: ['best-seller'],               image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop', imageAlt: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&h=600&fit=crop', bg: '#f5d547' },
+        { name: 'Hike Bottle Outside Vibes Forest Green', price: 104.95, rating: 5,   reviews: 1234, badges: ['best-seller', 'save-15'],   image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&h=600&fit=crop', imageAlt: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600&h=600&fit=crop', bg: '#e8e8e8' },
+        { name: 'Rest In Nature T-Shirt Charcoal',       price: 104.95, rating: 4.5, reviews: 1234, badges: ['best-seller'],               image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=600&fit=crop', imageAlt: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&h=600&fit=crop', bg: '#e8384a' },
+        { name: 'Outside Vibes Cap Forest Green',         price: 104.95, rating: 5,   reviews: 1234, badges: ['best-seller', 'save-15'],   image: 'https://images.unsplash.com/photo-1587132137056-bfbf0166836e?w=600&h=600&fit=crop', imageAlt: 'https://images.unsplash.com/photo-1525385133512-2f3bdd039054?w=600&h=600&fit=crop', bg: '#f8c8d4' },
+        { name: 'Rest In Nature T-Shirt Charcoal',       price: 104.95, rating: 4.5, reviews: 1234, badges: ['best-seller'],               image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop', imageAlt: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=600&h=600&fit=crop', bg: '#f9e7c0' },
+        { name: 'Trail Runner Pro Midnight Blue',         price: 129.95, rating: 4.5, reviews: 876,  badges: ['best-seller'],               image: 'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=600&h=600&fit=crop', imageAlt: 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=600&h=600&fit=crop', bg: '#d4e4f7' },
+        { name: 'Eco Tote Bag Natural Canvas',            price: 49.95,  rating: 5,   reviews: 2105, badges: ['best-seller', 'save-15'],   image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&h=600&fit=crop', imageAlt: 'https://images.unsplash.com/photo-1559563458-527698bf5295?w=600&h=600&fit=crop', bg: '#f0ebe3' },
+        { name: 'Adventure Water Bottle Sage',            price: 34.95,  rating: 4.5, reviews: 1567, badges: ['best-seller'],               image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&h=600&fit=crop', imageAlt: 'https://images.unsplash.com/photo-1570831739435-6601aa3fa4fb?w=600&h=600&fit=crop', bg: '#c8dbbe' },
+        { name: 'Classic Aviator Sunglasses Gold',        price: 89.95,  rating: 4.5, reviews: 943,  badges: ['save-15'],                   image: 'https://images.unsplash.com/photo-1577803645773-f96470509666?w=600&h=600&fit=crop', imageAlt: 'https://images.unsplash.com/photo-1509695507497-903c140c43b0?w=600&h=600&fit=crop', bg: '#fdf0d5' },
+        { name: 'Summit Backpack Olive Green',            price: 159.95, rating: 5,   reviews: 712,  badges: ['best-seller'],               image: 'https://images.unsplash.com/photo-1622260614153-03223fb72052?w=600&h=600&fit=crop', imageAlt: 'https://images.unsplash.com/photo-1581605405669-fcdf81165afa?w=600&h=600&fit=crop', bg: '#d6ccc2' },
+      ];
+
+      var MOBILE_VISIBLE = 4;
+      var STAR_PATH = 'M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z';
+      var starUid = 0;
+
+      /* -------------------------------------------------------
+         Render Helpers
+      ------------------------------------------------------- */
+
+      function stars(rating) {
+        var html = '';
+        for (var i = 1; i <= 5; i++) {
+          if (i <= Math.floor(rating)) {
+            html += '<svg class="w-3.5 h-3.5" fill="#231F20" viewBox="0 0 20 20" aria-hidden="true"><path d="' + STAR_PATH + '"/></svg>';
+          } else if (i === Math.ceil(rating) && rating % 1 !== 0) {
+            var pct = Math.round((rating % 1) * 100);
+            var id  = 'sg' + (starUid++);
+            html += '<svg class="w-3.5 h-3.5" viewBox="0 0 20 20" aria-hidden="true">'
+                  + '<defs><linearGradient id="' + id + '">'
+                  + '<stop offset="' + pct + '%" stop-color="#231F20"/>'
+                  + '<stop offset="' + pct + '%" stop-color="#CFCFCF"/>'
+                  + '</linearGradient></defs>'
+                  + '<path fill="url(#' + id + ')" d="' + STAR_PATH + '"/></svg>';
+          } else {
+            html += '<svg class="w-3.5 h-3.5" fill="#CFCFCF" viewBox="0 0 20 20" aria-hidden="true"><path d="' + STAR_PATH + '"/></svg>';
+          }
+        }
+        return html;
+      }
+
+      function badge(type) {
+        if (type === 'best-seller') return '<span class="inline-block px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.06em] leading-none bg-white text-brand rounded-full border border-black">Best Seller</span>';
+        if (type === 'save-15')     return '<span class="inline-block px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.06em] leading-none bg-badge text-white rounded-full border border-black">Save 15%</span>';
+        return '';
+      }
+
+      function price(n) { return '$' + n.toFixed(2); }
+      function reviewCount(n) { return n.toLocaleString(); }
+
+      /* -------------------------------------------------------
+         Card Factory
+         Shared template – `variant` controls sizing classes.
+      ------------------------------------------------------- */
+
+      function createCard(product, index, variant) {
+        var d = variant === 'desktop';
+
+        var wrapCls   = d ? 'flex-shrink-0 w-[300px] md:w-[320px] lg:w-[340px] xl:w-[360px] group' : 'group';
+        var imgMb     = d ? 'mb-3' : 'mb-2.5';
+        var badgeOff  = d ? 'top-3' : 'top-2';
+        var padL      = d ? 'left-3' : 'left-2';
+        var padR      = d ? 'right-3' : 'right-2';
+        var titleSize = d ? 'text-[18px]' : 'text-[14px]';
+        var titleMb   = d ? 'mb-2' : 'mb-1.5';
+        var revSize   = d ? 'text-[12px]' : 'text-[10px]';
+        var prcSize   = d ? 'text-[16px]' : 'text-[14px]';
+        var gap       = d ? 'gap-1.5' : 'gap-1';
+        var rowMb     = d ? 'mb-2' : 'mb-1.5';
+
+        var bL = product.badges.includes('best-seller') ? badge('best-seller') : '';
+        var bR = product.badges.includes('save-15')     ? badge('save-15')     : '';
+
+        var el = document.createElement('article');
+        el.setAttribute('role', 'listitem');
+        el.className = wrapCls;
+        el.innerHTML =
+          '<a href="#" class="block" aria-label="' + product.name + ' – ' + price(product.price) + '">'
+          + '<div class="relative aspect-square rounded-lg overflow-hidden ' + imgMb + '" style="background:' + product.bg + '">'
+          +   '<img src="' + product.image    + '" alt="' + product.name + '" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-0" loading="' + (index < 4 ? 'eager' : 'lazy') + '" decoding="async"/>'
+          +   '<img src="' + product.imageAlt + '" alt="' + product.name + ' – alternate view" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100" loading="lazy" decoding="async"/>'
+          +   '<div class="absolute ' + badgeOff + ' ' + padL + ' pointer-events-none">' + bL + '</div>'
+          +   '<div class="absolute ' + badgeOff + ' ' + padR + ' pointer-events-none">' + bR + '</div>'
+          + '</div>'
+          + '<h3 class="font-display ' + titleSize + ' uppercase tracking-[0.03em] leading-none text-brand ' + titleMb + '">' + product.name + '</h3>'
+          + '<div class="flex items-center ' + gap + ' ' + rowMb + '">'
+          +   '<div class="flex items-center gap-0.5" aria-label="' + product.rating + ' out of 5 stars">' + stars(product.rating) + '</div>'
+          +   '<span class="font-body ' + revSize + ' text-gray-500 leading-none">' + reviewCount(product.reviews) + ' Reviews</span>'
+          + '</div>'
+          + '<p class="font-body ' + prcSize + ' font-medium text-brand leading-none">' + price(product.price) + '</p>'
+          + '</a>';
+        return el;
+      }
+
+      /* -------------------------------------------------------
+         Init – render cards into both layouts
+      ------------------------------------------------------- */
+
+      document.addEventListener('DOMContentLoaded', function () {
+        var carousel   = document.getElementById('carousel');
+        var mobileGrid = document.getElementById('mobile-visible');
+
+        PRODUCTS.forEach(function (product, i) {
+          carousel.appendChild(createCard(product, i, 'desktop'));
+          mobileGrid.appendChild(createCard(product, i, 'mobile'));
+        });
+      });
+
+    })();
+  </script>
 
 </body>
 </html>
